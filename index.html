@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quản trị &amp; Kiểm soát Dự án — Analytics for Boiler Efficiency | Sông Hậu 1</title>
+<style>
+  :root{
+    --pv-green-1:#0d4f3c;
+    --pv-green-2:#1a7a52;
+    --pv-green-3:#1b5e3f;
+    --pv-green-soft:#e8f3ee;
+    --pv-amber:#ffb020;
+    --red:#dc2626;
+    --red-soft:#fee2e2;
+    --yellow:#f59e0b;
+    --yellow-soft:#fef3c7;
+    --green:#16a34a;
+    --green-soft:#dcfce7;
+    --blue:#2563eb;
+    --blue-soft:#dbeafe;
+    --grey:#64748b;
+    --grey-soft:#f1f5f9;
+    --ink:#1a2233;
+    --ink-2:#475569;
+    --line:#e2e8f0;
+    --bg:#f4f7fb;
+    --card:#ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    font-family:'Segoe UI','Inter','Helvetica Neue',Arial,sans-serif;
+    background:var(--bg);color:var(--ink);font-size:14px;line-height:1.5;
+  }
+
+  /* ============== HEADER ============== */
+  .header{
+    background:linear-gradient(90deg,var(--pv-green-1) 0%,var(--pv-green-2) 100%);
+    color:#fff;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;
+    box-shadow:0 2px 6px rgba(0,0,0,.08);
+  }
+  .brand{display:flex;align-items:center;gap:16px;min-width:0;flex:1}
+  .logo{
+    width:84px;height:84px;background:#fff;border-radius:10px;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 0 3px rgba(255,255,255,.35);padding:6px;
+    flex-shrink:0;
+  }
+  .logo svg{width:100%;height:100%;display:block}
+  .logo img{
+    width:100%;height:100%;object-fit:contain;display:block;
+    image-rendering:-webkit-optimize-contrast;
+    image-rendering:crisp-edges;
+  }
+  .brand-text{display:flex;flex-direction:column;justify-content:center}
+  .brand-text h1{font-size:20px;font-weight:700;letter-spacing:.3px;line-height:1.2}
+  .brand-text p{font-size:15px;opacity:.95;margin-top:6px;line-height:1.2}
+  .header-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
+  .pill{
+    background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);
+    color:#fff;padding:7px 14px;border-radius:999px;font-size:12px;
+    display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+    transition:.2s;white-space:nowrap;
+  }
+  .pill:hover{background:rgba(255,255,255,.25)}
+  .pill .dot{width:7px;height:7px;border-radius:50%;background:#7ee2a8;box-shadow:0 0 6px #7ee2a8}
+
+  /* ============== KPI CARDS ============== */
+  .kpi-row{
+    display:grid;grid-template-columns:repeat(5,1fr);gap:14px;
+    padding:18px 28px 8px 28px;
+  }
+  .kpi{
+    background:var(--card);border-radius:10px;padding:16px 18px;
+    display:flex;justify-content:space-between;align-items:flex-start;
+    box-shadow:0 1px 2px rgba(15,23,42,.04);border:1px solid var(--line);
+  }
+  .kpi .num{font-size:30px;font-weight:700;color:var(--ink);line-height:1}
+  .kpi .num.red{color:var(--red)}
+  .kpi .num.yellow{color:var(--yellow)}
+  .kpi .lbl{font-size:14px;color:var(--ink-2);margin-top:10px;display:block;font-weight:500}
+  .kpi .icon{
+    width:34px;height:34px;border-radius:8px;background:var(--pv-green-soft);
+    display:flex;align-items:center;justify-content:center;color:var(--pv-green-2);
+    font-size:16px;
+  }
+  .kpi .icon.red{background:var(--red-soft);color:var(--red)}
+  .kpi .icon.yellow{background:var(--yellow-soft);color:var(--yellow)}
+
+  /* ============== TABS ============== */
+  .tabs{
+    background:var(--card);margin:8px 28px 0;border-radius:10px 10px 0 0;
+    padding:0 18px;display:flex;gap:6px;border:1px solid var(--line);border-bottom:none;
+    overflow-x:auto;
+  }
+  .tab{
+    padding:14px 18px;font-size:15px;font-weight:600;color:var(--ink-2);
+    cursor:pointer;border-bottom:3px solid transparent;transition:.15s;
+    display:inline-flex;align-items:center;gap:8px;white-space:nowrap;
+  }
+  .tab:hover{color:var(--pv-green-2)}
+  .tab.active{color:var(--pv-green-2);border-bottom-color:var(--pv-green-2);font-weight:600}
+  .tab .badge{
+    background:var(--red);color:#fff;font-size:10px;padding:2px 7px;border-radius:999px;
+    font-weight:700;
+  }
+
+  /* ============== MAIN ============== */
+  .main{
+    margin:0 28px 28px;background:var(--card);
+    border:1px solid var(--line);border-top:none;border-radius:0 0 10px 10px;
+    min-height:600px;padding:24px 28px;
+  }
+  .pane{display:none}
+  .pane.active{display:block}
+
+  /* Toolbar above tables */
+  .toolbar{
+    display:flex;justify-content:space-between;align-items:center;gap:14px;
+    margin-bottom:16px;flex-wrap:wrap;
+  }
+  .toolbar h2{font-size:16px;font-weight:700;color:var(--ink)}
+  .toolbar .sub{font-size:12px;color:var(--ink-2);margin-top:2px}
+  .search-box{position:relative;min-width:260px}
+  .search-box input{
+    width:100%;padding:9px 12px 9px 34px;border:1px solid var(--line);
+    border-radius:8px;font-size:13px;outline:none;background:#fafbfc;transition:.15s;
+  }
+  .search-box input:focus{border-color:var(--pv-green-2);background:#fff;box-shadow:0 0 0 3px rgba(26,122,82,.12)}
+  .search-box::before{content:"🔍";position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:12px;opacity:.6}
+
+  .filters{display:flex;gap:8px;flex-wrap:wrap}
+  .filter-chip{
+    padding:6px 12px;border:1px solid var(--line);border-radius:999px;font-size:12px;
+    cursor:pointer;background:#fff;color:var(--ink-2);transition:.15s;
+  }
+  .filter-chip:hover{border-color:var(--pv-green-2);color:var(--pv-green-2)}
+  .filter-chip.active{background:var(--pv-green-3);color:#fff;border-color:var(--pv-green-3)}
+
+  /* Tables */
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  thead th{
+    background:var(--pv-green-1);color:#fff;padding:11px 10px;text-align:left;
+    font-weight:600;font-size:12px;letter-spacing:.2px;
+  }
+  thead th:first-child{border-top-left-radius:8px}
+  thead th:last-child{border-top-right-radius:8px}
+  tbody td{padding:11px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  tbody tr:nth-child(even){background:#fafbfc}
+  tbody tr:hover{background:var(--pv-green-soft)}
+  td.center,th.center{text-align:center}
+
+  /* RACI badges */
+  .raci{
+    display:inline-block;min-width:32px;padding:3px 9px;border-radius:6px;
+    font-weight:700;font-size:12px;text-align:center;color:#fff;
+  }
+  .raci-R{background:var(--green)}
+  .raci-A{background:var(--blue)}
+  .raci-RA{background:var(--pv-green-3)}
+  .raci-CR{background:var(--pv-green-2)}
+  .raci-C{background:var(--yellow);color:#1a2233}
+  .raci-I{background:var(--grey)}
+
+  /* Risk level badges */
+  .level{
+    display:inline-block;padding:3px 11px;border-radius:6px;font-weight:700;
+    font-size:11.5px;color:#fff;text-transform:uppercase;
+  }
+  .level-cao{background:var(--red)}
+  .level-tb{background:var(--yellow);color:#1a2233}
+  .level-thap{background:var(--green)}
+  .group-chip{
+    display:inline-block;padding:3px 9px;border-radius:5px;font-size:11.5px;
+    background:var(--pv-green-soft);color:var(--pv-green-3);font-weight:600;
+  }
+  .status-chip{
+    display:inline-block;padding:3px 9px;border-radius:5px;font-size:11.5px;font-weight:500;
+  }
+  .status-mo{background:var(--red-soft);color:var(--red)}
+  .status-theodoi{background:var(--yellow-soft);color:#92580f}
+  .status-daxuly{background:var(--green-soft);color:var(--green)}
+
+  .score-cell{
+    font-weight:700;font-size:14px;text-align:center;padding:6px 10px;border-radius:6px;
+    display:inline-block;min-width:36px;color:#fff;
+  }
+  .score-cao{background:var(--red)}
+  .score-tb{background:var(--yellow);color:#1a2233}
+  .score-thap{background:var(--green)}
+
+  .id-chip{
+    display:inline-block;padding:3px 9px;border-radius:6px;background:var(--pv-green-1);
+    color:#fff;font-weight:700;font-size:11.5px;font-family:'Consolas',monospace;
+  }
+
+  /* Tổng quan cards */
+  .overview-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:14px}
+  .ov-card{
+    background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:18px 20px;
+  }
+  .ov-card h3{
+    font-size:14px;color:var(--pv-green-1);font-weight:700;margin-bottom:10px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .ov-card p{font-size:13px;color:var(--ink-2);line-height:1.65}
+  .ov-card ul{list-style:none;padding:0;margin-top:8px}
+  .ov-card li{
+    padding:6px 0 6px 22px;position:relative;font-size:13px;color:var(--ink);
+  }
+  .ov-card li::before{
+    content:"▸";position:absolute;left:6px;color:var(--pv-green-2);font-weight:700;
+  }
+  .legend-row{
+    display:flex;align-items:center;gap:12px;padding:7px 0;font-size:13px;
+  }
+  .legend-row span:first-child{
+    min-width:140px;font-weight:700;padding:4px 10px;border-radius:6px;color:#fff;
+    text-align:center;font-size:11.5px;
+  }
+
+  /* Dashboard */
+  .dash-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:14px}
+  .dash-card{
+    background:#fafbfc;border:1px solid var(--line);border-radius:10px;padding:18px;
+  }
+  .dash-card h3{
+    font-size:13px;color:var(--pv-green-1);font-weight:700;margin-bottom:14px;
+    text-transform:uppercase;letter-spacing:.5px;
+  }
+  .bar-item{margin-bottom:11px}
+  .bar-label{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px}
+  .bar-label .name{color:var(--ink)}
+  .bar-label .count{color:var(--ink-2);font-weight:700}
+  .bar-track{
+    height:8px;background:var(--grey-soft);border-radius:999px;overflow:hidden;
+  }
+  .bar-fill{
+    height:100%;border-radius:999px;background:linear-gradient(90deg,var(--pv-green-2),var(--pv-green-1));
+    transition:width .6s ease;
+  }
+  .bar-fill.red{background:linear-gradient(90deg,#f87171,var(--red))}
+  .bar-fill.yellow{background:linear-gradient(90deg,#fcd34d,var(--yellow))}
+  .bar-fill.green{background:linear-gradient(90deg,#86efac,var(--green))}
+
+  .donut-wrap{display:flex;align-items:center;gap:18px;padding:6px 0}
+  .donut{
+    width:120px;height:120px;border-radius:50%;flex-shrink:0;
+    background:conic-gradient(var(--red) 0% var(--p1),var(--yellow) var(--p1) var(--p2),var(--green) var(--p2) 100%);
+    position:relative;display:flex;align-items:center;justify-content:center;
+  }
+  .donut::after{
+    content:"";position:absolute;width:75px;height:75px;border-radius:50%;background:#fff;
+  }
+  .donut-center{position:relative;z-index:1;text-align:center}
+  .donut-center .big{font-size:22px;font-weight:800;color:var(--ink);line-height:1}
+  .donut-center .sm{font-size:11px;color:var(--ink-2);margin-top:2px}
+  .donut-legend{flex:1}
+  .donut-legend .item{
+    display:flex;align-items:center;gap:8px;font-size:12.5px;padding:4px 0;
+  }
+  .dot-sq{width:10px;height:10px;border-radius:3px}
+
+  /* RACI cells specific */
+  .raci-table td.role-cell{text-align:center;vertical-align:middle}
+
+  /* responsive */
+  @media (max-width:1100px){
+    .kpi-row{grid-template-columns:repeat(2,1fr)}
+    .overview-grid,.dash-grid{grid-template-columns:1fr}
+  }
+  @media (max-width:760px){
+    .kpi-row{grid-template-columns:1fr}
+    .header{flex-wrap:wrap;gap:10px}
+  }
+
+  ::-webkit-scrollbar{width:8px;height:8px}
+  ::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:8px}
+  ::-webkit-scrollbar-track{background:transparent}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="brand">
+    <div class="logo" title="PetroVietnam PVPGB">
+      <img src="logo-pvpbg.png" alt="PetroVietnam PVPGB">
+    </div>
+    <div class="brand-text">
+      <h1>QUẢN TRỊ &amp; KIỂM SOÁT DỰ ÁN — ANALYTICS FOR BOILER EFFICIENCY</h1>
+      <p><strong style="color:#ff5757">Nhà máy Nhiệt điện Sông Hậu 1</strong></p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <span class="pill"><span class="dot"></span>Cập nhật <strong>2026-06-26</strong></span>
+    <span class="pill">↻ Đồng bộ Excel</span>
+    <span class="pill">📥 Xuất báo cáo</span>
+  </div>
+</header>
+
+<!-- KPI ROW -->
+<section class="kpi-row">
+  <div class="kpi"><div><div class="num">12</div><span class="lbl">Milestone dự án</span></div><div class="icon">▦</div></div>
+  <div class="kpi"><div><div class="num">14</div><span class="lbl">Rủi ro đã định danh</span></div><div class="icon">⚠</div></div>
+  <div class="kpi"><div><div class="num red">8</div><span class="lbl">Rủi ro mức Cao</span></div><div class="icon red">▲</div></div>
+  <div class="kpi"><div><div class="num yellow">6</div><span class="lbl">Rủi ro mức Trung bình</span></div><div class="icon yellow">●</div></div>
+  <div class="kpi"><div><div class="num">27</div><span class="lbl">Tuần triển khai</span></div><div class="icon">⏱</div></div>
+</section>
+
+<!-- TABS -->
+<nav class="tabs">
+  <div class="tab active" data-tab="overview">📋 Tổng quan</div>
+  <div class="tab" data-tab="raci">▦ Ma trận RACI</div>
+  <div class="tab" data-tab="risk">⚠ Đăng ký rủi ro <span class="badge">14</span></div>
+  <div class="tab" data-tab="control">🛡 Cảnh báo &amp; Kiểm soát</div>
+  <div class="tab" data-tab="dashboard">📊 Dashboard</div>
+</nav>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- ============ PANE: TỔNG QUAN ============ -->
+  <div class="pane active" id="pane-overview">
+    <div class="toolbar"><div><h2>Tổng quan tài liệu</h2><div class="sub">Mục đích, cấu trúc và quy ước ký hiệu sử dụng trong hệ thống quản trị – kiểm soát dự án.</div></div></div>
+
+    <div class="overview-grid">
+      <div class="ov-card">
+        <h3>🎯 Mục đích tài liệu</h3>
+        <p>Cung cấp công cụ kiểm soát thống nhất cho Ban Quản lý Dự án và Tổ Kiểm Nhiệt – PXBDSC, gồm: (1) Ma trận RACI phân định trách nhiệm theo milestone; (2) Hệ thống cảnh báo (Risk Register) với mức độ rủi ro và trigger; (3) Biện pháp giảm thiểu – kiểm soát tương ứng cho từng nhóm rủi ro về scope, dữ liệu, hạ tầng, an toàn vận hành và phối hợp đa bên.</p>
+      </div>
+
+      <div class="ov-card">
+        <h3>📌 Thông tin dự án</h3>
+        <ul>
+          <li><strong>Đơn vị thực hiện:</strong> Celebal Technologies (Ấn Độ – Microsoft AI Partner of the Year 2023)</li>
+          <li><strong>Đơn vị tiếp nhận:</strong> NMNĐ Sông Hậu 1 — PVN Group</li>
+          <li><strong>Thời gian:</strong> 25–27 tuần (W1–W27)</li>
+          <li><strong>Giá trị:</strong> USD 310K (Design – Development – Deployment)</li>
+          <li><strong>Phương pháp:</strong> Agile Scrum (sprint 2–4 tuần)</li>
+        </ul>
+      </div>
+
+      <div class="ov-card">
+        <h3>🗂 Cấu trúc workbook (5 sheet)</h3>
+        <ul>
+          <li><strong>Tổng quan:</strong> Mục đích, cấu trúc workbook, quy ước ký hiệu.</li>
+          <li><strong>Ma trận RACI:</strong> 12 milestone × 6 vai trò</li>
+          <li><strong>Đăng ký rủi ro:</strong> 14 rủi ro – Xác suất × Tác động → Risk Score, Owner, Status.</li>
+          <li><strong>Cảnh báo &amp; Kiểm soát:</strong> Trigger, ngưỡng, mitigation, escalation level, KPI giám sát.</li>
+          <li><strong>Dashboard:</strong> Thống kê tổng hợp theo nhóm/trạng thái/owner.</li>
+        </ul>
+      </div>
+
+      <div class="ov-card">
+        <h3>🔠 Quy ước ký hiệu</h3>
+        <div class="legend-row"><span class="raci raci-R">R</span><span>Responsible – Người trực tiếp thực hiện</span></div>
+        <div class="legend-row"><span class="raci raci-A">A</span><span>Accountable – Người chịu trách nhiệm cuối cùng</span></div>
+        <div class="legend-row"><span class="raci raci-C">C</span><span>Consulted – Người được tham vấn ý kiến</span></div>
+        <div class="legend-row"><span class="raci raci-I">I</span><span>Informed – Người được thông báo</span></div>
+        <div class="legend-row"><span class="level level-cao">Cao</span><span>Risk Score ≥ 12 — action plan tức thì</span></div>
+        <div class="legend-row"><span class="level level-tb">TB</span><span>6 ≤ Risk Score &lt; 12 — theo dõi định kỳ</span></div>
+        <div class="legend-row"><span class="level level-thap">Thấp</span><span>Risk Score &lt; 6 — giám sát thường quy</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ PANE: MA TRẬN RACI ============ -->
+  <div class="pane" id="pane-raci">
+    <div class="toolbar">
+      <div><h2>Ma trận RACI — Phân định trách nhiệm theo Milestone</h2><div class="sub">12 milestone × 6 vai trò chính (Celebal + Sông Hậu 1). Lọc theo từ khóa để tìm nhanh.</div></div>
+      <div class="search-box"><input id="raciSearch" type="text" placeholder="Tìm milestone, vai trò…"/></div>
+    </div>
+
+    <div style="overflow-x:auto">
+      <table class="raci-table" id="raciTable">
+        <thead>
+          <tr>
+            <th class="center" style="width:50px">STT</th>
+            <th style="min-width:280px">Milestone</th>
+            <th class="center" style="width:80px">Tuần</th>
+            <th class="center">PM (CT)</th>
+            <th class="center">Tech Architect (CT)</th>
+            <th class="center">Delivery Mgr (CT)</th>
+            <th class="center">Customer SPOC (SH1)</th>
+            <th class="center">Domain SME (SH1)</th>
+            <th class="center">Steering Committee</th>
+          </tr>
+        </thead>
+        <tbody id="raciBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============ PANE: ĐĂNG KÝ RỦI RO ============ -->
+  <div class="pane" id="pane-risk">
+    <div class="toolbar">
+      <div><h2>Đăng ký rủi ro (Risk Register)</h2><div class="sub">14 rủi ro — Risk Score = Xác suất × Tác động (thang 1–5). Lọc theo nhóm hoặc mức độ.</div></div>
+      <div class="search-box"><input id="riskSearch" type="text" placeholder="Tìm ID, mô tả rủi ro, owner…"/></div>
+    </div>
+
+    <div class="filters" id="riskFilters">
+      <div class="filter-chip active" data-filter="all">Tất cả</div>
+      <div class="filter-chip" data-filter="Cao">Mức Cao</div>
+      <div class="filter-chip" data-filter="Trung bình">Mức Trung bình</div>
+      <div class="filter-chip" data-filter="Thấp">Mức Thấp</div>
+      <div class="filter-chip" data-filter="Mở">Trạng thái: Mở</div>
+      <div class="filter-chip" data-filter="Đang theo dõi">Đang theo dõi</div>
+      <div class="filter-chip" data-filter="Đã xử lý">Đã xử lý</div>
+    </div>
+
+    <div style="overflow-x:auto;margin-top:14px">
+      <table>
+        <thead>
+          <tr>
+            <th class="center" style="width:54px">ID</th>
+            <th style="width:110px">Nhóm</th>
+            <th>Mô tả rủi ro</th>
+            <th class="center" style="width:50px">XS</th>
+            <th class="center" style="width:50px">TĐ</th>
+            <th class="center" style="width:70px">Score</th>
+            <th class="center" style="width:90px">Mức độ</th>
+            <th style="width:160px">Owner</th>
+            <th style="width:120px">Trạng thái</th>
+            <th class="center" style="width:80px">Hạn</th>
+          </tr>
+        </thead>
+        <tbody id="riskBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============ PANE: CẢNH BÁO & KIỂM SOÁT ============ -->
+  <div class="pane" id="pane-control">
+    <div class="toolbar">
+      <div><h2>Cảnh báo — Biện pháp Giảm thiểu &amp; Kiểm soát</h2><div class="sub">14 rủi ro × Trigger, ngưỡng kích hoạt, mitigation, control, escalation level và KPI giám sát.</div></div>
+      <div class="search-box"><input id="ctrlSearch" type="text" placeholder="Tìm trigger, biện pháp, KPI…"/></div>
+    </div>
+
+    <div style="overflow-x:auto">
+      <table>
+        <thead>
+          <tr>
+            <th class="center" style="width:54px">ID</th>
+            <th style="width:200px">Trigger / Dấu hiệu</th>
+            <th style="width:200px">Ngưỡng kích hoạt</th>
+            <th>Mitigation</th>
+            <th style="width:220px">Control</th>
+            <th class="center" style="width:140px">Escalation</th>
+            <th style="width:180px">KPI giám sát</th>
+          </tr>
+        </thead>
+        <tbody id="ctrlBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ============ PANE: DASHBOARD ============ -->
+  <div class="pane" id="pane-dashboard">
+    <div class="toolbar"><div><h2>Dashboard tổng hợp</h2><div class="sub">Thống kê tự động theo nhóm rủi ro, trạng thái xử lý và owner phụ trách.</div></div></div>
+
+    <div class="dash-grid">
+
+      <div class="dash-card">
+        <h3>Phân bố theo Mức độ</h3>
+        <div class="donut-wrap">
+          <div class="donut" id="donutLevel" style="--p1:57.14%;--p2:100%">
+            <div class="donut-center"><div class="big">14</div><div class="sm">Rủi ro</div></div>
+          </div>
+          <div class="donut-legend">
+            <div class="item"><span class="dot-sq" style="background:var(--red)"></span>Cao — 8 (57%)</div>
+            <div class="item"><span class="dot-sq" style="background:var(--yellow)"></span>Trung bình — 6 (43%)</div>
+            <div class="item"><span class="dot-sq" style="background:var(--green)"></span>Thấp — 0 (0%)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dash-card">
+        <h3>Phân bố theo Trạng thái</h3>
+        <div id="byStatus"></div>
+      </div>
+
+      <div class="dash-card">
+        <h3>Phân bố theo Owner</h3>
+        <div id="byOwner"></div>
+      </div>
+
+      <div class="dash-card" style="grid-column:span 2">
+        <h3>Phân bố theo Nhóm rủi ro</h3>
+        <div id="byGroup"></div>
+      </div>
+
+      <div class="dash-card">
+        <h3>Chỉ số chính</h3>
+        <div style="display:flex;flex-direction:column;gap:14px;margin-top:4px">
+          <div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink-2)">Risk Score TB</span><strong style="color:var(--pv-green-1);font-size:18px">11.6</strong></div>
+          <div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink-2)">Risk Score cao nhất</span><strong style="color:var(--red);font-size:18px">16</strong></div>
+          <div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink-2)">Số rủi ro Cao</span><strong style="color:var(--red);font-size:18px">8 / 14</strong></div>
+          <div style="display:flex;justify-content:space-between"><span style="font-size:13px;color:var(--ink-2)">Đã xử lý</span><strong style="color:var(--green);font-size:18px">1 / 14</strong></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<script>
+/* ====================== DATA ====================== */
+const RACI = [
+  [1,  "Project Kick-Off, Requirements & Design Planning",       "W1–W2",   "R/A","R","I","R/A","C","I"],
+  [2,  "Onsite Stakeholder Workshop for Requirement & Design",   "W1–W2",   "R/A","R","I","R","C","I"],
+  [3,  "Infrastructure Landing Zone – HUB",                       "W2–W5",   "A","R","I","C","I","I"],
+  [4,  "Infrastructure Landing Zone – HUB Peered Transit Vnet",   "W3–W5",   "A","R","I","C","I","I"],
+  [5,  "Infrastructure Landing Zone – SPOKE – DEV",               "W3–W6",   "A","R","I","C","I","I"],
+  [6,  "Infrastructure Landing Zone – SPOKE – PROD",              "W4–W7",   "A","R","I","C","I","I"],
+  [7,  "DevOps Implementation (CI/CD)",                            "W5–W13",  "A","R","I","I","I","I"],
+  [8,  "Data Ingestion & Data Engineering",                        "W6–W18",  "A","R","I","C/R","C","I"],
+  [9,  "Data Science – Model Development & Extension",             "W10–W20", "A","R","I","C","C","I"],
+  [10, "Data Science – Predictive Analytics & Drift Monitoring",   "W15–W23", "A","R","I","C","C","I"],
+  [11, "BI Reports – Visualization, KPIs & Dashboards",            "W18–W25", "A","R","I","C","C","I"],
+  [12, "Final UAT – Production Go-Live & Hand-over",               "W24–W27", "R/A","R","A","R/A","R","A"],
+];
+
+const RISKS = [
+  {id:"R01",group:"Scope",     risk:"Kỳ vọng không thực tế về kết quả/ROI",      cause:"Stakeholder hiểu chưa đúng phạm vi POC mở rộng",                p:3,i:4, owner:"Project Manager",   status:"Đang theo dõi", due:"W2"},
+  {id:"R02",group:"Scope",     risk:"Yêu cầu chức năng không rõ ràng",          cause:"Nghiệp vụ chưa định hình To-Be state",                          p:3,i:5, owner:"Tech Architect",    status:"Đang theo dõi", due:"W2"},
+  {id:"R03",group:"Scope",     risk:"Change/Creep in Scope",                    cause:"Phát sinh thay đổi sau giai đoạn Design",                       p:4,i:4, owner:"Project Manager",   status:"Mở",            due:"Liên tục"},
+  {id:"R04",group:"Tổ chức",  risk:"Chậm huy động đội nghiệp vụ Khách hàng", cause:"Resource Sông Hậu chưa sẵn sàng tại kick-off",                 p:3,i:4, owner:"Customer SPOC",     status:"Đang theo dõi", due:"W1"},
+  {id:"R05",group:"Tổ chức",  risk:"Chậm cung cấp input/artefact",             cause:"Thiếu SPOC hoặc phối hợp chậm giữa các phòng ban",              p:3,i:4, owner:"Customer SPOC",     status:"Đang theo dõi", due:"Liên tục"},
+  {id:"R06",group:"Tổ chức",  risk:"Chậm feedback/signoff deliverable",        cause:"Phê duyệt nội bộ kéo dài",                                      p:3,i:3, owner:"Customer SPOC",     status:"Đang theo dõi", due:"Liên tục"},
+  {id:"R07",group:"Hạ tầng", risk:"Chậm logistics cho đội triển khai",         cause:"PC, building access, VPN chưa sẵn sàng",                        p:2,i:3, owner:"Customer SPOC",     status:"Đã xử lý",       due:"W1"},
+  {id:"R08",group:"Nhân sự", risk:"DC & DRC, training availability",          cause:"Thiếu user khi training/UAT",                                   p:2,i:3, owner:"Project Manager",   status:"Đang theo dõi", due:"W23"},
+  {id:"R09",group:"Hiệu năng",risk:"Transaction load cao hơn dự kiến",         cause:"Khối lượng dữ liệu/giao dịch vượt thiết kế",                    p:3,i:4, owner:"Tech Architect",    status:"Mở",            due:"W18"},
+  {id:"R10",group:"Dữ liệu", risk:"Dữ liệu không có cấu trúc / nhiều phiên bản",cause:"Trùng lặp, thiếu sót trong dataset gốc (LIMS, DCS tags)",      p:4,i:4, owner:"Data Engineer Lead",status:"Mở",            due:"W10"},
+  {id:"R11",group:"Dữ liệu", risk:"Mất / hỏng dữ liệu khi chuyển",            cause:"Migration onprem ↔ Azure IoT Hub qua Internet",                p:2,i:5, owner:"Tech Architect",    status:"Đang theo dõi", due:"W8"},
+  {id:"R12",group:"Dữ liệu", risk:"Định dạng dữ liệu không tương thích",      cause:"File coal analysis nhiều định dạng (CSV/XLSX)",                 p:3,i:3, owner:"Data Engineer Lead",status:"Đang theo dõi", due:"W10"},
+  {id:"R13",group:"Phối hợp",risk:"Thiếu phối hợp giữa OT/IT/Analytics",     cause:"Silo giữa PXBDSC – CNTT – Vận hành",                            p:4,i:4, owner:"Project Manager",   status:"Mở",            due:"Liên tục"},
+  {id:"R14",group:"Tích hợp",risk:"Thiếu quy trình tích hợp end-to-end",      cause:"Công nghệ phân tán gây mất thông tin khi handover stage",       p:3,i:4, owner:"Tech Architect",    status:"Đang theo dõi", due:"W20"},
+];
+
+const CONTROLS = [
+  {id:"R01",trigger:"Kỳ vọng vượt scope POC", th:"Phản hồi >2 lần/tuần về kỳ vọng ROI ngoài SOW", miti:"Truyền thông rõ scope; thống nhất URD; ký Project Charter", ctrl:"Review URD hàng tuần; biên bản steering committee tháng", esc:"Cấp 2 (Account Mgr)", kpi:"Số CR/tuần; tỉ lệ scope drift"},
+  {id:"R02",trigger:"Yêu cầu chức năng chưa rõ", th:"Số requirement TBD >10% sau W2", miti:"User tham gia sâu, sở hữu To-Be state; workshop on-site W1–W2", ctrl:"Workshop on-site; signoff Requirement Specification", esc:"Cấp 1 (PM)", kpi:"% requirement đã signoff"},
+  {id:"R03",trigger:"Phát sinh CR sau giai đoạn Design", th:">3 CR/tháng hoặc CR ảnh hưởng >5% effort", miti:"Freeze scope cuối Design; quy trình CR đánh giá impact (cost/time/technical)", ctrl:"CR Document có version control; PO trước khi triển khai CR", esc:"Cấp 2 (Account Mgr)", kpi:"Số CR đã duyệt; impact giờ công"},
+  {id:"R04",trigger:"Đội Khách hàng chưa được phân công", th:"Chưa có team chính thức trước W1", miti:"Huy động core team trước kick-off; chỉ định SPOC duy nhất", ctrl:"Danh sách team có name/email/role; daily scrum kiểm tra attendance", esc:"Cấp 1 (PM) → Customer Sponsor", kpi:"% attendance daily scrum"},
+  {id:"R05",trigger:"Input/artefact chậm so với schedule", th:"Chậm >3 ngày so với kế hoạch", miti:"Khách hàng chỉ định SPOC chịu trách nhiệm cung cấp input đúng hạn", ctrl:"Input request log; báo cáo weekly cadence", esc:"Cấp 1 (PM)", kpi:"Lead time cung cấp input"},
+  {id:"R06",trigger:"Deliverable không được phê duyệt", th:"Chậm signoff >5 ngày làm việc", miti:"Quy ước Deemed Acceptance sau 5 ngày làm việc", ctrl:"Email tracking; reminder PM hàng ngày", esc:"Cấp 1 (PM) → Customer PM", kpi:"Avg time-to-signoff"},
+  {id:"R07",trigger:"Logistics chưa sẵn sàng cho đội triển khai", th:"Tỉ lệ chuẩn bị <80% trước W1", miti:"Celebal gửi danh sách yêu cầu trước kick-off; track checklist", ctrl:"Logistics checklist; PMO theo dõi tuần", esc:"Cấp 1 (PM)", kpi:"% logistics ready trước W1"},
+  {id:"R08",trigger:"User UAT/training vắng mặt", th:"Tỉ lệ tham dự <80% trong session UAT", miti:"Lên kế hoạch sớm; chia sẻ lịch training càng sớm càng tốt", ctrl:"Lịch UAT signoff bởi PM Khách hàng; reminder 7 ngày", esc:"Cấp 1 (PM) → Customer Sponsor", kpi:"% user tham dự UAT"},
+  {id:"R09",trigger:"Performance không đạt KPI", th:"Latency >SLA hoặc throughput <90% target", miti:"Tối ưu cluster sizing, autoscaling; performance test theo Milestone 3", ctrl:"Operational dashboard pipeline runs; cost & performance review", esc:"Cấp 2 (Tech Architect)", kpi:"Pipeline latency; cost/MW"},
+  {id:"R10",trigger:"Chất lượng dữ liệu source kém", th:"Tỉ lệ null/duplicate >5% trên silver layer", miti:"Schema enforcement; data quality gates; dedup; data dictionary", ctrl:"Quarantine flow; weekly DQ report; data lineage", esc:"Cấp 2 (Tech Architect)", kpi:"% null, % duplicate, DQ score"},
+  {id:"R11",trigger:"Mất gói dữ liệu khi migrate", th:"Lost packets >0.1% qua IoT Hub", miti:"Checkpointing; dead-letter queue; retry policy; backup ADLS", ctrl:"Monitor IoT Hub throughput/lag; alert tự động qua Azure Monitor", esc:"Cấp 2 (Tech Architect) → Delivery Mgr", kpi:"% data loss; ingest lag"},
+  {id:"R12",trigger:"File coal analysis không tương thích", th:"Schema mismatch trên >2% file upload", miti:"Schema mapping trong Databricks App; explicit schema check", ctrl:"Validation báo lỗi trước khi đẩy vào silver; audit log", esc:"Cấp 1 (Data Eng Lead)", kpi:"% file upload thành công"},
+  {id:"R13",trigger:"Silo giữa OT/IT/Analytics – task bị nghẽn", th:">2 task blocked vì coordination issue", miti:"Daily scrum chung; weekly cadence; escalation matrix rõ ràng", ctrl:"Action item tracker; cross-team RACI; PMO follow-up", esc:"Cấp 2 (Account Mgr)", kpi:"Số blocked task >3 ngày"},
+  {id:"R14",trigger:"Mất thông tin khi handover giữa stage", th:"Phát hiện gap ở UAT cuối", miti:"Chuẩn hóa pipeline end-to-end; lineage capture; data contract", ctrl:"Integration test plan; UAT gate trước go-live", esc:"Cấp 2 (Tech Architect)", kpi:"Số defect handover; coverage test"},
+];
+
+/* ====================== HELPERS ====================== */
+function score(r){return r.p*r.i}
+function level(r){const s=score(r); return s>=12?"Cao":(s>=6?"Trung bình":"Thấp")}
+function levelClass(lvl){return lvl==="Cao"?"score-cao":(lvl==="Trung bình"?"score-tb":"score-thap")}
+function levelBadge(lvl){return lvl==="Cao"?"level-cao":(lvl==="Trung bình"?"level-tb":"level-thap")}
+function statusClass(s){return s==="Mở"?"status-mo":(s==="Đang theo dõi"?"status-theodoi":"status-daxuly")}
+function raciClass(v){
+  if(v==="R/A") return "raci-RA";
+  if(v==="C/R") return "raci-CR";
+  return "raci-"+v;
+}
+
+/* ====================== RENDER: RACI ====================== */
+function renderRACI(filter=""){
+  const f=filter.toLowerCase();
+  const rows=RACI.filter(r=>!f||r[1].toLowerCase().includes(f)||r[2].toLowerCase().includes(f));
+  document.getElementById("raciBody").innerHTML=rows.map(r=>`
+    <tr>
+      <td class="center"><strong>${r[0]}</strong></td>
+      <td>${r[1]}</td>
+      <td class="center" style="color:var(--ink-2);font-weight:600">${r[2]}</td>
+      ${[3,4,5,6,7,8].map(i=>`<td class="role-cell"><span class="raci ${raciClass(r[i])}">${r[i]}</span></td>`).join("")}
+    </tr>
+  `).join("");
+}
+
+/* ====================== RENDER: RISKS ====================== */
+let riskActiveFilter="all";
+function renderRisks(){
+  const search=document.getElementById("riskSearch").value.toLowerCase();
+  let list=RISKS.filter(r=>{
+    if(search && !(r.id.toLowerCase().includes(search)||r.risk.toLowerCase().includes(search)||r.owner.toLowerCase().includes(search)||r.group.toLowerCase().includes(search))) return false;
+    if(riskActiveFilter==="all") return true;
+    if(["Cao","Trung bình","Thấp"].includes(riskActiveFilter)) return level(r)===riskActiveFilter;
+    return r.status===riskActiveFilter;
+  });
+  document.getElementById("riskBody").innerHTML=list.map(r=>{
+    const s=score(r), lvl=level(r);
+    return `<tr>
+      <td class="center"><span class="id-chip">${r.id}</span></td>
+      <td><span class="group-chip">${r.group}</span></td>
+      <td><strong>${r.risk}</strong><div style="color:var(--ink-2);font-size:12px;margin-top:3px">${r.cause}</div></td>
+      <td class="center">${r.p}</td>
+      <td class="center">${r.i}</td>
+      <td class="center"><span class="score-cell ${levelClass(lvl)}">${s}</span></td>
+      <td class="center"><span class="level ${levelBadge(lvl)}">${lvl}</span></td>
+      <td>${r.owner}</td>
+      <td><span class="status-chip ${statusClass(r.status)}">${r.status}</span></td>
+      <td class="center" style="color:var(--ink-2);font-weight:600">${r.due}</td>
+    </tr>`;
+  }).join("");
+}
+
+/* ====================== RENDER: CONTROLS ====================== */
+function renderControls(filter=""){
+  const f=filter.toLowerCase();
+  const list=CONTROLS.filter(c=>!f||c.trigger.toLowerCase().includes(f)||c.miti.toLowerCase().includes(f)||c.kpi.toLowerCase().includes(f)||c.id.toLowerCase().includes(f));
+  document.getElementById("ctrlBody").innerHTML=list.map(c=>`
+    <tr>
+      <td class="center"><span class="id-chip">${c.id}</span></td>
+      <td>${c.trigger}</td>
+      <td style="color:var(--ink-2)">${c.th}</td>
+      <td>${c.miti}</td>
+      <td style="color:var(--ink-2)">${c.ctrl}</td>
+      <td class="center"><span class="group-chip">${c.esc}</span></td>
+      <td><strong style="color:var(--pv-green-2)">${c.kpi}</strong></td>
+    </tr>
+  `).join("");
+}
+
+/* ====================== RENDER: DASHBOARD BARS ====================== */
+function renderBars(){
+  // by status
+  const statuses=["Mở","Đang theo dõi","Đã xử lý"];
+  const total=RISKS.length;
+  document.getElementById("byStatus").innerHTML=statuses.map((s,i)=>{
+    const n=RISKS.filter(r=>r.status===s).length;
+    const pct=n/total*100;
+    const cls=i===0?"red":(i===1?"yellow":"green");
+    return `<div class="bar-item">
+      <div class="bar-label"><span class="name">${s}</span><span class="count">${n} (${pct.toFixed(0)}%)</span></div>
+      <div class="bar-track"><div class="bar-fill ${cls}" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join("");
+
+  // by owner
+  const owners=[...new Set(RISKS.map(r=>r.owner))];
+  document.getElementById("byOwner").innerHTML=owners.map(o=>{
+    const n=RISKS.filter(r=>r.owner===o).length;
+    const pct=n/total*100;
+    return `<div class="bar-item">
+      <div class="bar-label"><span class="name">${o}</span><span class="count">${n}</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join("");
+
+  // by group
+  const groups=[...new Set(RISKS.map(r=>r.group))];
+  document.getElementById("byGroup").innerHTML=groups.map(g=>{
+    const arr=RISKS.filter(r=>r.group===g);
+    const n=arr.length;
+    const avg=arr.reduce((s,r)=>s+score(r),0)/n;
+    const pct=n/total*100;
+    return `<div class="bar-item">
+      <div class="bar-label"><span class="name"><span class="group-chip">${g}</span></span><span class="count">${n} rủi ro · Risk TB ${avg.toFixed(1)}</span></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct*1.5}%"></div></div>
+    </div>`;
+  }).join("");
+}
+
+/* ====================== EVENTS ====================== */
+document.querySelectorAll(".tab").forEach(t=>{
+  t.addEventListener("click",()=>{
+    document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll(".pane").forEach(x=>x.classList.remove("active"));
+    t.classList.add("active");
+    document.getElementById("pane-"+t.dataset.tab).classList.add("active");
+  });
+});
+
+document.getElementById("raciSearch").addEventListener("input",e=>renderRACI(e.target.value));
+document.getElementById("ctrlSearch").addEventListener("input",e=>renderControls(e.target.value));
+document.getElementById("riskSearch").addEventListener("input",renderRisks);
+
+document.querySelectorAll("#riskFilters .filter-chip").forEach(c=>{
+  c.addEventListener("click",()=>{
+    document.querySelectorAll("#riskFilters .filter-chip").forEach(x=>x.classList.remove("active"));
+    c.classList.add("active");
+    riskActiveFilter=c.dataset.filter;
+    renderRisks();
+  });
+});
+
+/* INIT */
+renderRACI();
+renderRisks();
+renderControls();
+renderBars();
+</script>
+</body>
+</html>
